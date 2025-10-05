@@ -14,6 +14,8 @@ class FileProcessor:
 
     @staticmethod
     def get_files_in_directory(directory: str):
+
+        
         """Получаю список файлов в директории"""
         return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
 

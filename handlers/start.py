@@ -9,7 +9,7 @@ router = Router()
 @router.message(Command("start"))
 async def start_handler(message: Message):
     await message.answer(
-        "здарова это второй подчиненный кости\n\n"
+        "здарова! это второй подчиненный кости\n\n"
         "1. скинь ссылку на плейлист.\n"
         "2. плейлист должен быть создан человеком.\n"
         "3. какое максимальное колличество треков хз нужно чекать.\n"
@@ -20,4 +20,5 @@ async def start_handler(message: Message):
 
 @router.callback_query(F.data == "subscribed")
 async def callback_subscribed(callback: CallbackQuery):
-    await callback.answer("от души брат обнял поднял рахмат и тд", show_alert=True)
+    await callback.answer("от души брат", show_alert=True)
+    

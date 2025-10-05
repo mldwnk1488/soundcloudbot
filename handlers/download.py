@@ -4,9 +4,7 @@ import asyncio
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery, FSInputFile
 
-from services.queue_manager import queue_manager
-from services.downloader import downloader
-from services.file_processor import file_processor
+from services import queue_manager, downloader, file_processor, playlist_preview
 from keyboards.main import get_download_keyboard
 from utils.helpers import send_message_to_user, send_document_to_user, send_ad_message
 
@@ -17,14 +15,23 @@ async def playlist_handler(message: Message):
     url = message.text.strip()
     user_id = message.from_user.id
     
-    # Получаю название плейлиста и сохраняем данные
-    playlist_title = downloader.get_playlist_title(url)
+    # 1. сначала отправляем информацию
+    playlist_data = await playlist_preview.send_playlist_preview(message, url)
+    
+    # 2. сохраняю данные для загрузки
     queue_manager.user_data[user_id] = {
         'url': url,
-        'playlist_title': playlist_title
+        'playlist_title': playlist_data['title']
     }
     
-    await message.answer("выбери формат загрузки:", reply_markup=get_download_keyboard())
+    # 3. затем отправляю выбор формата загрузки
+    await message.answer("⬇️выбери формат загрузки:", reply_markup=get_download_keyboard())
+
+async def send_preview_async(message: Message, url: str):
+
+
+    """Асинхронно отправляет превью плейлиста"""
+    await playlist_preview.send_playlist_preview(message, url)
 
 @router.callback_query(F.data.in_(["download_zip", "download_tracks"]))
 async def callback_download(callback: CallbackQuery):
@@ -32,7 +39,7 @@ async def callback_download(callback: CallbackQuery):
     user_info = queue_manager.user_data.get(user_id)
     
     if not user_info:
-        await callback.message.answer("сначала отправь ссылку на плейлист.")
+        await callback.message.answer("🔗сначала отправь ссылку на плейлист.")
         return
 
     # Добавляем в очередь
@@ -41,26 +48,26 @@ async def callback_download(callback: CallbackQuery):
     
     if pos == 1 and not queue_manager.processing:
         await callback.message.answer(
-            f"поздравляю ты первый ща все сделаю...\n\n"
-            f"плейлист: {user_info['playlist_title']}\n"
-            f"формат: {'ZIP-архив' if callback.data == 'download_zip' else 'отдельные треки'}"
+            f"🎉 поздравляю, ты первый в очереди! начинаю загрузку...\n\n"
+            f"📁 плейлист: {user_info['playlist_title']}\n"
+            f"🗂 формат: {'ZIP-архив' if callback.data == 'download_zip' else 'отдельные треки'}"
         )
         asyncio.create_task(process_queue(callback.bot))
     else:
         await callback.message.answer(
-            f"ты в очереди погоди\n\n"
-            f"номер очереди: {pos}\n"
-            f"плейлист: {user_info['playlist_title']}\n"
-            f"формат: {'ZIP-архив' if callback.data == 'download_zip' else 'отдельные треки'}\n\n"
-            f"я скажу когда начну скачивать\n"
-            f"используй /queue чтобы проверить номер очереди"
+            f"⏳ ты в очереди, подожди немного\n\n"
+            f"📊 номер в очереди: {pos}\n"
+            f"📁 плейлист: {user_info['playlist_title']}\n"
+            f"📦 формат: {'ZIP-архив' if callback.data == 'download_zip' else 'отдельные треки'}\n\n"
+            f"🔔 я скажу, когда начну скачивать\n"
+            f"📋 используй /queue чтобы чекнуть позицию в очереди"
         )
 
 async def process_queue(bot):
+
+
     """Обрабатываю очередь заданий"""
-    from services.queue_manager import queue_manager
-    from services.downloader import downloader
-    from services.file_processor import file_processor
+    from services import queue_manager, downloader, file_processor
     from utils.helpers import send_message_to_user, send_document_to_user, send_ad_message
     
     while queue_manager.download_queue:
@@ -79,35 +86,35 @@ async def process_queue(bot):
                     zip_path = None
                     try:
                         # Скачиваю треки
-                        await send_message_to_user(bot, user_id, "ща скачаю...")
+                        await send_message_to_user(bot, user_id, "⬇️ начинаю скачивание...")
                         await downloader.download_playlist(url, tmpdir)
                         
                         files = file_processor.get_files_in_directory(tmpdir)
                         if not files:
-                            await send_message_to_user(bot, user_id, "не удалось скачать треки.")
+                            await send_message_to_user(bot, user_id, "❌ не вышло скачать треки.")
                             continue
                         
                         # Создаю ZIP с названием плейлиста
-                        await send_message_to_user(bot, user_id, "ща упакую почекай...")
+                        await send_message_to_user(bot, user_id, "📦 упаковываю в ZIP...")
                         zip_filename = f"{playlist_title}.zip"
                         zip_path = os.path.join(tempfile.gettempdir(), zip_filename)
                         file_processor.create_zip(tmpdir, zip_path)
                         
                         # Отправляю архив с правильным именем
-                        await send_message_to_user(bot, user_id, "отправляю архив...")
+                        await send_message_to_user(bot, user_id, "📤 отправляю твой файл...")
                         await send_document_to_user(
                             bot, user_id, 
                             FSInputFile(zip_path, filename=zip_filename),
                             caption=f"🎵 {playlist_title}"
                         )
                         
-                        await send_message_to_user(bot, user_id, "ЧЕТКО!!! держи")
+                        await send_message_to_user(bot, user_id, "✅ готово! держи архив")
                         
                         # Отправляю рекламу после успешной отправки
                         await send_ad_message(bot, user_id)
                         
                     except Exception as e:
-                        await send_message_to_user(bot, user_id, f"ошибка: {e}")
+                        await send_message_to_user(bot, user_id, f"❌ ошибка: {e}")
                     
                     finally:
                         # Удаляю временный ZIP файл
@@ -116,16 +123,16 @@ async def process_queue(bot):
                 
                 elif callback_data == "download_tracks":
                     try:
-                        await send_message_to_user(bot, user_id, "ща скачаю...")
+                        await send_message_to_user(bot, user_id, "⬇️ начинаю скачивание...")
                         await downloader.download_playlist(url, tmpdir)
                         
                         files = file_processor.get_files_in_directory(tmpdir)
                         if not files:
-                            await send_message_to_user(bot, user_id, "не удалось скачать треки.")
+                            await send_message_to_user(bot, user_id, "❌ не вышло скачать треки.")
                             continue
                         
                         # Отправляю треки по одному
-                        await send_message_to_user(bot, user_id, f"ща отправлю {len(files)} треков...")
+                        await send_message_to_user(bot, user_id, f"📤 отправляю {len(files)} треков...")
                         for idx, file_name in enumerate(files, 1):
                             file_path = os.path.join(tmpdir, file_name)
                             await send_document_to_user(
@@ -134,18 +141,20 @@ async def process_queue(bot):
                                 caption=f"🎵 {playlist_title} - трек {idx}/{len(files)}"
                             )
                         
-                        await send_message_to_user(bot, user_id, "все треки отправил")
+                        await send_message_to_user(bot, user_id, "✅ все треки отправлены!")
                         
                         # Отправляю рекламу после успешной отправки всех треков
                         await send_ad_message(bot, user_id)
                         
                     except Exception as e:
-                        await send_message_to_user(bot, user_id, f"ОШИБКА ВТФ: {e}")
+                        await send_message_to_user(bot, user_id, f"❌ ошибка: {e}")
         
         except Exception as e:
-            await send_message_to_user(bot, user_id, f"фатальная ошибка: {e}")
+            await send_message_to_user(bot, user_id, f"❌ фатальная ошибка: {e}")
         
         finally:
+
+            
             # Удаляю задание из очереди и статуса
             if queue_manager.download_queue:
                 queue_manager.download_queue.popleft()

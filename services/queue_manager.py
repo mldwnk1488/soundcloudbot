@@ -1,5 +1,6 @@
 from collections import deque
 from typing import Dict, Any
+from services import queue_manager
 
 class QueueManager:
     def __init__(self):
