@@ -6,7 +6,7 @@ app = web.Application()
 async def health_check(request):
     return web.Response(text='Bot Health OK')
 
-@app.route('/health')
+@app.router('/health')
 async def health(request):
     return web.json_response({"status": "running"})
 
