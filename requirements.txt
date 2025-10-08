@@ -1,5 +1,5 @@
 aiogram==3.17.0
-yt-dlp==2025.10.1
+yt-dlp
 python-dotenv==1.0.0
 aiohttp==3.9.1
 aiofiles==23.2.1
