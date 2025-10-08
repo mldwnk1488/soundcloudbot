@@ -1,4 +1,4 @@
-app = "soundcloudbot"  # унікальна назва!
+app = "soundcloudbot"
 
 [build]
 
