@@ -3,11 +3,10 @@ from aiogram import types
 from io import BytesIO
 import requests
 import asyncio
+from lang_bot.translations import get_text
 
 class PlaylistPreview:
     async def get_playlist_info(self, playlist_url):
-
-
         """получаю информацию о плейлисте"""
         try:
             ydl_opts = {
@@ -29,10 +28,10 @@ class PlaylistPreview:
                 cover_url = first_track.get('thumbnail', '')
             
             playlist_info = {
-                'title': info.get('title', 'Unknown Playlist'),
+                'title': info.get('title', get_text('ua', 'unknown_playlist')),
                 'cover_url': cover_url,
                 'track_count': len(info.get('entries', [])),
-                'user': info.get('uploader', 'Unknown Artist'),
+                'user': info.get('uploader', get_text('ua', 'unknown_artist')),
             }
             
             return playlist_info
@@ -40,9 +39,7 @@ class PlaylistPreview:
         except Exception:
             return None
 
-    async def send_playlist_preview(self, message: types.Message, playlist_url):
-
-
+    async def send_playlist_preview(self, message: types.Message, playlist_url: str, lang: str = "ua"):
         """Быстро отправляет превью и возвращает информацию для загрузки"""
         try:
             # получаю информацию о плейлисте
@@ -51,19 +48,19 @@ class PlaylistPreview:
             if not playlist_info:
                 # заглушка если не получилось
                 playlist_info = {
-                    'title': 'Unknown Playlist',
+                    'title': get_text(lang, 'unknown_playlist'),
                     'track_count': 0,
-                    'user': 'Unknown Artist'
+                    'user': get_text(lang, 'unknown_artist')
                 }
             
             # Очищаем название
             clean_title = self.clean_text(playlist_info['title'])
             clean_user = self.clean_text(playlist_info['user'])
             
-            # Формируем подпись
+            # Формируем подпись на ПРАВИЛЬНОМ языке
             caption = f"🎵 **{clean_title}**\n"
-            caption += f"👤 **автор:** {clean_user}\n"
-            caption += f"📊 **кол-во треков:** {playlist_info['track_count']}"
+            caption += f"👤 **{get_text(lang, 'author')}:** {clean_user}\n"
+            caption += f"📊 **{get_text(lang, 'track_count')}:** {playlist_info['track_count']}"
             
             # Если есть обложка - отправляем с обложкой
             if playlist_info.get('cover_url'):
@@ -95,22 +92,19 @@ class PlaylistPreview:
         except Exception:
             # заглушка если не получилось полчить инфу
             return {
-                'title': 'Unknown Playlist',
-                'user': 'Unknown Artist',
+                'title': get_text(lang, 'unknown_playlist'),
+                'user': get_text(lang, 'unknown_artist'),
                 'track_count': 0
             }
 
     def clean_text(self, text):
-
-
         """Очищает текст от невидимых символов"""
         if not text:
-            return "неизвестно"
+            return get_text('ua', 'unknown')
         
         cleaned = ''.join(char for char in text if char.isprintable())
         cleaned = ' '.join(cleaned.split())
         
-        return cleaned if cleaned else "неизвестно"
-
+        return cleaned if cleaned else get_text('ua', 'unknown')
 
 playlist_preview = PlaylistPreview()

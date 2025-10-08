@@ -13,3 +13,9 @@ AD_MESSAGE = """
 
 ⬇️⬇️⬇️
 """
+
+AD_MESSAGE = {
+    "ua": "📢 *Підпишись на мій канал!*\nМоже щось буду туди постити...",
+    "ru": "📢 *Подпишись на мой канал!*\nМожет буду туда что-то постить...", 
+    "en": "📢 *Subscribe to my channel!*\nMaybe I'll post something there..."
+}
