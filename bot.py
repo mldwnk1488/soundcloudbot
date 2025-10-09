@@ -9,6 +9,8 @@ from config import BOT_TOKEN
 from handlers.start import router as start_router
 from handlers.queue import router as queue_router
 from handlers.download import router as download_router
+from database import db
+from bot_data import set_db  # <-- ДОБАВИЛ
 
 # HTTP-заглушка
 async def health_check(request):
@@ -20,16 +22,23 @@ async def self_ping():
     while True:
         try:
             async with aiohttp.ClientSession() as session:
-                # Замени на свой реальный URL
                 async with session.get('https://your-bot-name.onrender.com/') as resp:
                     print(f"Self-ping: {resp.status} at {datetime.now()}")
         except Exception as e:
             print(f"Ping failed: {e}")
-        await asyncio.sleep(300)  # Каждые 5 минут
+        await asyncio.sleep(300)
 
 async def start_bot():
     bot = Bot(token=BOT_TOKEN)
     dp = Dispatcher()
+    
+    # ПЕРЕДАЕМ БАЗУ В ГЛОБАЛЬНУЮ ПЕРЕМЕННУЮ
+    set_db(db)
+    
+    # Передаем базу в playlist_preview
+    from services.playlist_preview import playlist_preview
+    playlist_preview.set_db(db)
+    
     dp.include_router(start_router)
     dp.include_router(queue_router)
     dp.include_router(download_router)
@@ -44,10 +53,13 @@ async def start_http():
     site = web.TCPSite(runner, '0.0.0.0', port)
     await site.start()
     print(f"HTTP server started on port {port}")
-    # Бесконечно ждем
     await asyncio.Future()
 
 async def main():
+    # ИНИЦИАЛИЗИРУЕМ БАЗУ ПРИ СТАРТЕ
+    await db.init_db()
+    print("✅ База данных готова")
+    
     # Запускаем самопинг в фоне
     asyncio.create_task(self_ping())
     

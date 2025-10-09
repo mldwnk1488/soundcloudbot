@@ -1,6 +1,6 @@
-aiogram==3.17.0
+aiogram>=3.10.0
 yt-dlp
-python-dotenv==1.0.0
+requests
+aiofiles
 aiohttp
-aiofiles==23.2.1
-requests==2.31.0
+aiosqlite

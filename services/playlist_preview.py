@@ -7,8 +7,16 @@ from lang_bot.translations import get_text
 
 class PlaylistPreview:
     async def get_playlist_info(self, playlist_url):
-        """получаю информацию о плейлисте"""
+        """получаю информацию о плейлисте и КЭШИРУЕМ"""
         try:
+            # ПРОВЕРЯЕМ КЭШ ПЕРЕД ПАРСИНГОМ
+            db = self.get_db()  # получим базу позже
+            if db:
+                cached_playlist, cached_tracks = await db.get_cached_playlist(playlist_url)
+                if cached_playlist:
+                    print(f"⚡ Используем кэш для {playlist_url}")
+                    return cached_playlist
+            
             ydl_opts = {
                 'quiet': True,
                 'no_warnings': True,
@@ -34,9 +42,16 @@ class PlaylistPreview:
                 'user': info.get('uploader', get_text('ua', 'unknown_artist')),
             }
             
+            # КЭШИРУЕМ ДАННЫЕ ПЛЕЙЛИСТА
+            if db:
+                tracks_data = [{'title': track.get('title', '')} for track in info.get('entries', [])]
+                await db.cache_playlist(playlist_url, playlist_info, tracks_data)
+                print(f"💾 Закэшировали плейлист: {playlist_info['title']}")
+            
             return playlist_info
             
-        except Exception:
+        except Exception as e:
+            print(f"❌ Ошибка получения информации о плейлисте: {e}")
             return None
 
     async def send_playlist_preview(self, message: types.Message, playlist_url: str, lang: str = "ua"):
@@ -89,8 +104,9 @@ class PlaylistPreview:
                 'track_count': playlist_info['track_count']
             }
             
-        except Exception:
-            # заглушка если не получилось полчить инфу
+        except Exception as e:
+            print(f"❌ Ошибка отправки превью: {e}")
+            # заглушка если не получилось получить инфу
             return {
                 'title': get_text(lang, 'unknown_playlist'),
                 'user': get_text(lang, 'unknown_artist'),
@@ -106,5 +122,13 @@ class PlaylistPreview:
         cleaned = ' '.join(cleaned.split())
         
         return cleaned if cleaned else get_text('ua', 'unknown')
+    
+    def set_db(self, db_instance):
+        """Устанавливаем базу данных для кэширования"""
+        self.db = db_instance
+    
+    def get_db(self):
+        """Получаем базу данных"""
+        return getattr(self, 'db', None)
 
 playlist_preview = PlaylistPreview()
