@@ -1,19 +1,11 @@
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
-
+# 🔥 УБРАЛ DOTENV - ИСПОЛЬЗУЕМ ТОЛЬКО OS
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 if not BOT_TOKEN:
-    raise ValueError("BOT_TOKEN не найден в .env файле")
+    raise ValueError("BOT_TOKEN не найден в переменных окружения")
 
 # Рекламное сообщение
-AD_MESSAGE = """
-спасибо что воспользовался этим ботом
-
-⬇️⬇️⬇️
-"""
-
 AD_MESSAGE = {
     "ua": "📢 *Підпишись на мій канал!*\nМоже щось буду туди постити...",
     "ru": "📢 *Подпишись на мой канал!*\nМожет буду туда что-то постить...", 
