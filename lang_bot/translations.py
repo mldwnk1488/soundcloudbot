@@ -1,21 +1,30 @@
 TRANSLATIONS = {
     "ua": {
+        # СТАРТ И ЯЗЫКИ
         "start_choose": "🌍 <b>Оберіть мову</b>\nДля ознайомлення з умовами використання",
         "welcome": "✅ Дякую! Тепер ви можете користуватися ботом.\n\n",
         "main_text": (
-            "Привiт!\n\n"
-            "1. Вiдравте посилання на плейлист.\n"
-            "2. Плейлист має бути створений людиною.\n"
-            "3. Яка максимальна кількість треків, не знаю, треба перевiряти.\n"
-            "4. Потім виберiть зручний формат як вам відправити їх.\n"
-            "Якщо будуть якісь помилки пишiть сюди: @kostyalovedota"
+            "Привiт! 👋\n\n"
+            "🎵 Я вмію завантажувати музику з:\n"
+            "• SoundCloud\n"  
+            "• YouTube Music\n"
+            "• Звичайний YouTube\n\n"
+            "⚠️ *Увага:* Завантаження з YouTube/YouTube Music займає більше часу!\n\n"
+            "1. Надішліть посилання на плейлист або трек\n"
+            "2. Оберіть формат завантаження\n"
+            "3. Отримайте вашу музику!\n\n"
+            "📮 З питаннями: @kostyalovedota"
         ),
         "subscribed_alert": "Дякую козаче!",
+        
+        # КНОПКИ
         "download_zip": "🗂 Скачати архівом(до ~15 трекiв)",
         "download_tracks": "⬇️ Скачати треки сюди(рекомендую)",
         "my_channel": "⚡️ Мій тгк",
         "already_subscribed": "✅ Я вже підписаний",
         "agree_button": "✅ Я ПОГОДЖУЮСЯ З УМОВАМИ",
+        
+        # СООБЩЕНИЯ
         "choose_format": "⬇️Обери формат завантаження:",
         "send_link_first": "🔗Спочатку надішли посилання на плейлист.",
         "congrats_first": "Вітаю, ти перший у черзі! Починаю завантаження...",
@@ -66,26 +75,90 @@ TRANSLATIONS = {
         "no_history": "📭 Історія завантажень порожня",
         "global_stats": "🌍 Загальна статистика",
         "your_stats": "👤 Ваша статистика",
-        "yes_download": "✅ Так, скачати",
-        "no_cancel": "❌ Ні, скасувати",
+        "sending_archive": "📦 Відправляю архів ({parts} частин)...",
+        "sending_part": "📤 Відправляю частину {current}/{total}...", 
+        "archive_sent": "✅ Всі частини архіву відправлені! ({parts} шт.)",
+        "part_sent": "🎵 {title} (частина {current}/{total})",
+        
+        # НОВЫЕ КЛЮЧИ ДЛЯ ТИПОВ КОНТЕНТА
+        "track": "трек",
+        "playlist": "плейлист",
+        "content": "контент",
+        "single_track": "Один трек",
+        "track_info": "Інформація про трек",
+        "playlist_info": "Інформація про плейлист",
+        "duration": "Тривалість",
+        "artist": "Виконавець",
+        "title": "Назва",
+        
+        # НОВЫЕ КЛЮЧИ ДЛЯ ОШИБОК И СТАТУСОВ
+        "canceled": "Відмінено",
+        "confirm_first": "Спочатку підтвердіть завантаження",
+        "archive_creation_failed": "Не вдалося створити архів",
+        "part_not_found": "Частина {part} не знайдена: {path}",
+        "part_sent_success": "Частина {part} відправлена!",
+        "part_send_error": "Помилка відправки частини {part}: {error}",
+        "zip_process_error": "Помилка в процесі ZIP: {error}",
+        "temp_file_cleaned": "Видалено тимчасовий файл: {path}",
+        
+        # НОВЫЕ КЛЮЧИ ДЛЯ ПРОЦЕССА
+        "downloading_content": "Завантажую {type}",
+        "processing_content": "Обробляю {type}",
+        "sending_content": "Відправляю {type}",
+        "getting_info": "🔍 Отримую інформацію про контент... Зачекайте трохи!",
+        "youtube_slow_warning": "⚠️ Увага: Завантаження з YouTube/YouTube Music може зайняти більше часу!",
+        
+        # СМАЙЛИКИ
+        "emoji_track": "🎵",
+        "emoji_playlist": "📁",
+        "emoji_artist": "👤",
+        "emoji_title": "📀",
+        "emoji_duration": "⏱",
+        "emoji_count": "📊",
+        "emoji_download": "⬇️",
+        "emoji_processing": "🔄",
+        "emoji_success": "✅",
+        "emoji_error": "❌",
+        "emoji_waiting": "⏳",
+        "emoji_queue": "📊",
+        "emoji_format": "🗂",
+        "emoji_zip": "📦",
+        "emoji_notify": "🔔",
+        "emoji_history": "📋",
+        "emoji_stats": "📊",
+        "emoji_global": "🌍",
+        "emoji_user": "👤",
+        "emoji_cached": "⚡",
+        "emoji_cleaned": "🧹",
+        "emoji_part": "📤",
+        "emoji_search": "🔍"
     },
     "ru": {
+        # СТАРТ И ЯЗЫКИ
         "start_choose": "🌍 <b>Выберите язык</b>\nДля ознакомления с условиями использования",
         "welcome": "✅ Спасибо! Теперь вы можете использовать бота.\n\n",
         "main_text": (
-            "Привет!\n\n"
-            "1. Отправьте ссылку на плейлист.\n"
-            "2. Плейлист должен быть создан человеком.\n"
-            "3. Какое максимальное количество треков, не знаю, нужно проверять.\n"
-            "4. Потом выберите удобный формат как вам отправить их.\n"
-            "Если будут какие-то ошибки пишите сюда: @kostyalovedota"
+            "Привет! 👋\n\n"
+            "🎵 Я умею загружать музыку с:\n"
+            "• SoundCloud\n"  
+            "• YouTube Music\n"
+            "• Обычный YouTube\n\n"
+            "⚠️ *Внимание:* Загрузка с YouTube/YouTube Music занимает больше времени!\n\n"
+            "1. Отправьте ссылку на плейлист или трек\n"
+            "2. Выберите формат загрузки\n"
+            "3. Получите вашу музыку!\n\n"
+            "📮 По вопросам: @kostyalovedota"
         ),
         "subscribed_alert": "Спасибо))", 
+        
+        # КНОПКИ
         "download_zip": "🗂 Скачать архивом(до ~15 треков)",
         "download_tracks": "⬇️ Скачать треки сюда(рекомендую)",
         "my_channel": "⚡️ Мой тгк",
         "already_subscribed": "✅ Я уже подписан",
         "agree_button": "✅ Я СОГЛАСЕН С УСЛОВИЯМИ",
+        
+        # СООБЩЕНИЯ
         "choose_format": "⬇️Выбери формат загрузки:",
         "send_link_first": "🔗Сначала отправь ссылку на плейлист.",
         "congrats_first": "Поздравляю, ты первый в очереди! Начинаю загрузку...",
@@ -136,79 +209,198 @@ TRANSLATIONS = {
         "no_history": "📭 История загрузок пуста",
         "global_stats": "🌍 Общая статистика",
         "your_stats": "👤 Ваша статистика",
-        "yes_download": "✅ Да, скачать", 
-        "no_cancel": "❌ Нет, отмена"
+        "sending_archive": "📦 Отправляю архив ({parts} частей)...",
+        "sending_part": "📤 Отправляю часть {current}/{total}...",
+        "archive_sent": "✅ Все части архива отправлены! ({parts} шт.)", 
+        "part_sent": "🎵 {title} (часть {current}/{total})",
+        
+        # НОВЫЕ КЛЮЧИ ДЛЯ ТИПОВ КОНТЕНТА
+        "track": "трек",
+        "playlist": "плейлист",
+        "content": "контент",
+        "single_track": "Один трек",
+        "track_info": "Информация о треке",
+        "playlist_info": "Информация о плейлисте",
+        "duration": "Длительность",
+        "artist": "Исполнитель",
+        "title": "Название",
+        
+        # НОВЫЕ КЛЮЧИ ДЛЯ ОШИБОК И СТАТУСОВ
+        "canceled": "Отменено",
+        "confirm_first": "Сначала подтвердите загрузку",
+        "archive_creation_failed": "Не удалось создать архив",
+        "part_not_found": "Часть {part} не найдена: {path}",
+        "part_sent_success": "Часть {part} отправлена!",
+        "part_send_error": "Ошибка отправки части {part}: {error}",
+        "zip_process_error": "Ошибка в процессе ZIP: {error}",
+        "temp_file_cleaned": "Удален временный файл: {path}",
+        
+        # НОВЫЕ КЛЮЧИ ДЛЯ ПРОЦЕССА
+        "downloading_content": "Загружаю {type}",
+        "processing_content": "Обрабатываю {type}",
+        "sending_content": "Отправляю {type}",
+        "getting_info": "🔍 Получаю информацию о контенте... Подождите немного!",
+        "youtube_slow_warning": "⚠️ Внимание: Загрузка с YouTube/YouTube Music может занять больше времени!",
+        
+        # СМАЙЛИКИ
+        "emoji_track": "🎵",
+        "emoji_playlist": "📁",
+        "emoji_artist": "👤", 
+        "emoji_title": "📀",
+        "emoji_duration": "⏱",
+        "emoji_count": "📊",
+        "emoji_download": "⬇️",
+        "emoji_processing": "🔄",
+        "emoji_success": "✅",
+        "emoji_error": "❌",
+        "emoji_waiting": "⏳",
+        "emoji_queue": "📊",
+        "emoji_format": "🗂",
+        "emoji_zip": "📦",
+        "emoji_notify": "🔔",
+        "emoji_history": "📋",
+        "emoji_stats": "📊",
+        "emoji_global": "🌍",
+        "emoji_user": "👤",
+        "emoji_cached": "⚡",
+        "emoji_cleaned": "🧹",
+        "emoji_part": "📤",
+        "emoji_search": "🔍"
     },
     "en": {
-    "start_choose": "🌍 <b>Choose language</b>\nTo review the terms of use",
-    "welcome": "✅ Thank you! Now you can use the bot.\n\n",
-    "main_text": (
-        "Hello!\n\n"
-        "1. Send a link to the playlist.\n"
-        "2. The playlist must be created by a human.\n"
-        "3. Maximum number of tracks? I don't know, need to check.\n"
-        "4. Then choose a convenient format for sending them.\n"
-        "If there are any errors, write here: @kostyalovedota"
-    ),
-    "subscribed_alert": "Thank's bro!!!", 
-    "download_zip": "🗂 Download as zip (up to ~15 tracks)",
-    "download_tracks": "⬇️ Single tracks (recommended)",
-    "my_channel": "⚡️ My tg channel",
-    "already_subscribed": "✅ I'm already subscribed",
-    "agree_button": "✅ I AGREE TO THE TERMS",
-    "choose_format": "⬇️Choose download format:",
-    "send_link_first": "🔗First send a link to the playlist.",
-    "congrats_first": "Congratulations, you're first in line! Starting download...",
-    "playlist": "Playlist",
-    "format": "Format",
-    "zip_format": "ZIP archive",
-    "tracks_format": "Separate tracks",
-    "you_in_queue": "You're in the queue, wait a bit",
-    "queue_position": "Position in queue",
-    "will_notify_start": "I'll tell you when I start downloading",
-    "use_queue_command": "Use /queue to check your position in the queue",
-    "start_downloading": "⬇️ Starting download...",
-    "download_failed": "❌ Failed to download tracks.",
-    "packing_zip": "📦 Packing into ZIP...",
-    "sending_file": "📤 Sending your file...",
-    "done_zip": "✅ Done! Here's your archive",
-    "error": "Error",
-    "sending_tracks": "Sending",
-    "track": "Track",
-    "all_tracks_sent": "✅ All tracks sent!",
-    "fatal_error": "Fatal error",
-    "your_queue_number": "Your queue number",
-    "total_in_queue": "Total in queue",
-    "processing_now": "Working on it now.",
-    "not_in_queue": "Get in line first.",
-    "unknown_playlist": "Unknown playlist",
-    "unknown_artist": "Unknown artist",
-    "unknown": "Unknown",
-    "author": "Author",
-    "track_count": "Number of tracks",
-    "failed_send_message": "Failed to send message to user",
-    "failed_send_document": "Failed to send document to user",
-    "failed_send_ad": "Failed to send ad to user",
-    "too_many_tracks": "❌ Too many tracks for archive",
-    "recommend_separate": "💡 I recommend downloading tracks separately", 
-    "archive_too_big": "📦 Archive too large for Telegram",
-    "history_title": "📋 Download History",
-    "stats_title": "📊 Statistics",
-    "recent_downloads": "Recent downloads",
-    "total_downloads": "Total downloads",
-    "total_tracks": "Total tracks",
-    "total_size": "Total size",
-    "download_again": "📥 Download again?",
-    "yes_download": "✅ Yes, download",
-    "no_cancel": "❌ No, cancel",
-    "playlist_cached": "⚡ Using cached data",
-    "progress_status": "📥 Downloaded {current}/{total} tracks",
-    "no_history": "📭 Download history is empty",
-    "global_stats": "🌍 Global statistics",
-    "your_stats": "👤 Your statistics",
-    "yes_download": "✅ Yes, download",
-    "no_cancel": "❌ No, cancel"
-}
+        # СТАРТ И ЯЗЫКИ
+        "start_choose": "🌍 <b>Choose language</b>\nTo review the terms of use",
+        "welcome": "✅ Thank you! Now you can use the bot.\n\n",
+        "main_text": (
+            "Hello! 👋\n\n"
+            "🎵 I can download music from:\n"
+            "• SoundCloud\n"  
+            "• YouTube Music\n"
+            "• Regular YouTube\n\n"
+            "⚠️ *Warning:* Downloading from YouTube/YouTube Music takes more time!\n\n"
+            "1. Send a link to a playlist or track\n"
+            "2. Choose download format\n"
+            "3. Get your music!\n\n"
+            "📮 For questions: @kostyalovedota"
+        ),
+        "subscribed_alert": "Thank's bro!!!", 
+        
+        # КНОПКИ
+        "download_zip": "🗂 Download as zip (up to ~15 tracks)",
+        "download_tracks": "⬇️ Single tracks (recommended)",
+        "my_channel": "⚡️ My tg channel",
+        "already_subscribed": "✅ I'm already subscribed",
+        "agree_button": "✅ I AGREE TO THE TERMS",
+        
+        # СООБЩЕНИЯ
+        "choose_format": "⬇️Choose download format:",
+        "send_link_first": "🔗First send a link to the playlist.",
+        "congrats_first": "Congratulations, you're first in line! Starting download...",
+        "playlist": "Playlist",
+        "format": "Format",
+        "zip_format": "ZIP archive",
+        "tracks_format": "Separate tracks",
+        "you_in_queue": "You're in the queue, wait a bit",
+        "queue_position": "Position in queue",
+        "will_notify_start": "I'll tell you when I start downloading",
+        "use_queue_command": "Use /queue to check your position in the queue",
+        "start_downloading": "⬇️ Starting download...",
+        "download_failed": "❌ Failed to download tracks.",
+        "packing_zip": "📦 Packing into ZIP...",
+        "sending_file": "📤 Sending your file...",
+        "done_zip": "✅ Done! Here's your archive",
+        "error": "Error",
+        "sending_tracks": "Sending",
+        "track": "Track",
+        "all_tracks_sent": "✅ All tracks sent!",
+        "fatal_error": "Fatal error",
+        "your_queue_number": "Your queue number",
+        "total_in_queue": "Total in queue",
+        "processing_now": "Working on it now.",
+        "not_in_queue": "Get in line first.",
+        "unknown_playlist": "Unknown playlist",
+        "unknown_artist": "Unknown artist",
+        "unknown": "Unknown",
+        "author": "Author",
+        "track_count": "Number of tracks",
+        "failed_send_message": "Failed to send message to user",
+        "failed_send_document": "Failed to send document to user",
+        "failed_send_ad": "Failed to send ad to user",
+        "too_many_tracks": "❌ Too many tracks for archive",
+        "recommend_separate": "💡 I recommend downloading tracks separately", 
+        "archive_too_big": "📦 Archive too large for Telegram",
+        "history_title": "📋 Download History",
+        "stats_title": "📊 Statistics",
+        "recent_downloads": "Recent downloads",
+        "total_downloads": "Total downloads",
+        "total_tracks": "Total tracks",
+        "total_size": "Total size",
+        "download_again": "📥 Download again?",
+        "yes_download": "✅ Yes, download",
+        "no_cancel": "❌ No, cancel",
+        "playlist_cached": "⚡ Using cached data",
+        "progress_status": "📥 Downloaded {current}/{total} tracks",
+        "no_history": "📭 Download history is empty",
+        "global_stats": "🌍 Global statistics",
+        "your_stats": "👤 Your statistics",
+        "sending_archive": "📦 Sending archive ({parts} parts)...",
+        "sending_part": "📤 Sending part {current}/{total}...",
+        "archive_sent": "✅ All archive parts sent! ({parts} pcs.)",
+        "part_sent": "🎵 {title} (part {current}/{total})",
+        
+        # НОВЫЕ КЛЮЧИ ДЛЯ ТИПОВ КОНТЕНТА
+        "track": "track",
+        "playlist": "playlist",
+        "content": "content",
+        "single_track": "Single track",
+        "track_info": "Track info", 
+        "playlist_info": "Playlist info",
+        "duration": "Duration",
+        "artist": "Artist",
+        "title": "Title",
+        
+        # НОВЫЕ КЛЮЧИ ДЛЯ ОШИБОК И СТАТУСОВ
+        "canceled": "Canceled",
+        "confirm_first": "Confirm download first", 
+        "archive_creation_failed": "Failed to create archive",
+        "part_not_found": "Part {part} not found: {path}",
+        "part_sent_success": "Part {part} sent!",
+        "part_send_error": "Error sending part {part}: {error}",
+        "zip_process_error": "Error in ZIP process: {error}",
+        "temp_file_cleaned": "Temporary file cleaned: {path}",
+        
+        # НОВЫЕ КЛЮЧИ ДЛЯ ПРОЦЕССА
+        "downloading_content": "Downloading {type}",
+        "processing_content": "Processing {type}",
+        "sending_content": "Sending {type}",
+        "getting_info": "🔍 Getting content info... Please wait a moment!",
+        "youtube_slow_warning": "⚠️ Warning: Downloading from YouTube/YouTube Music may take longer!",
+        
+        # СМАЙЛИКИ
+        "emoji_track": "🎵",
+        "emoji_playlist": "📁",
+        "emoji_artist": "👤",
+        "emoji_title": "📀", 
+        "emoji_duration": "⏱",
+        "emoji_count": "📊",
+        "emoji_download": "⬇️",
+        "emoji_processing": "🔄",
+        "emoji_success": "✅",
+        "emoji_error": "❌",
+        "emoji_waiting": "⏳",
+        "emoji_queue": "📊",
+        "emoji_format": "🗂",
+        "emoji_zip": "📦",
+        "emoji_notify": "🔔",
+        "emoji_history": "📋",
+        "emoji_stats": "📊",
+        "emoji_global": "🌍",
+        "emoji_user": "👤",
+        "emoji_cached": "⚡",
+        "emoji_cleaned": "🧹",
+        "emoji_part": "📤",
+        "emoji_search": "🔍"
+    }
 }
 
 def get_text(language, key):

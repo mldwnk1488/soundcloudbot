@@ -87,3 +87,8 @@ def get_disclaimer_text(language):
         "en": """🎵 *TERMS OF USE AND DISCLAIMER*\n\n_I made this bot with soul — to provide access to music during internet outages_\n\n💙 *MY MISSION*\nTo give every person the opportunity to create a personal music reserve to maintain psychological well-being during power outages.\n\n✅ *ALLOWED*\n• Use music EXCLUSIVELY for personal non-commercial listening\n• Save tracks on your devices for offline access\n• Create backup copies of favorite playlists "for a rainy day"\n• Share music in personal communication with close ones\n\n🚫 *STRICTLY PROHIBITED*\n• Distribute music through other platforms and websites\n• Use for commercial purposes and monetization\n• Violate artists' copyrights\n• Present downloaded music as your own creation\n\n🎯 *HOW TO USE EFFECTIVELY*\n1. During calm times, create an "emergency reserve" playlist\n2. Download it through the bot and save it on your phone\n3. Also add it to a flash drive as an additional copy\n\n🛡️ *RESPECT FOR ARTISTS*\nRemember — music is someone's creativity. If a track helps you:\n• Find the artist on SoundCloud and subscribe\n• Leave likes and comments on original tracks\n• Share links to the performer's work\n• If possible — provide financial support\n\n⚠️ *IMPORTANT*\nBy using this bot, you automatically agree:\n• To take full responsibility for copyright compliance\n• To use music exclusively for personal purposes\n• Not to distribute downloaded materials"""
     }
     return texts.get(language, texts["ua"])
+
+@router.message(Command("test"))
+async def test_handler(message: Message):
+    print("✅ ТЕСТОВАЯ КОМАНДА СРАБОТАЛА!")
+    await message.answer("Тест работает!")

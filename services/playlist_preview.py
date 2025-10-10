@@ -1,4 +1,5 @@
 import yt_dlp
+import re
 from aiogram import types
 from io import BytesIO
 import requests
@@ -6,81 +7,179 @@ import asyncio
 from lang_bot.translations import get_text
 
 class PlaylistPreview:
-    async def get_playlist_info(self, playlist_url):
-        """получаю информацию о плейлисте и КЭШИРУЕМ"""
+    async def get_content_info(self, url, message=None, lang="ua"):
+        """Получаю информацию о контенте (трек или плейлист) и КЭШИРУЕМ"""
         try:
+            # ОТПРАВЛЯЕМ СООБЩЕНИЕ "ПОЛУЧАЮ ИНФОРМАЦИЮ"
+            if message:
+                loading_msg = await message.answer(get_text(lang, "getting_info"))
+            
             # ПРОВЕРЯЕМ КЭШ ПЕРЕД ПАРСИНГОМ
-            db = self.get_db()  # получим базу позже
+            db = self.get_db()
             if db:
-                cached_playlist, cached_tracks = await db.get_cached_playlist(playlist_url)
+                cached_playlist, cached_tracks = await db.get_cached_playlist(url)
                 if cached_playlist:
-                    print(f"⚡ Используем кэш для {playlist_url}")
-                    return cached_playlist
+                    # ПРОВЕРЯЕМ ЧТО В КЭШЕ ЕСТЬ ВСЕ НУЖНЫЕ КЛЮЧИ
+                    required_keys = ['type', 'title', 'cover_url', 'track_count', 'user']
+                    for key in required_keys:
+                        if key not in cached_playlist:
+                            break
+                    else:
+                        # УДАЛЯЕМ СООБЩЕНИЕ "ПОЛУЧАЮ ИНФОРМАЦИЮ" ЕСЛИ ИСПОЛЬЗУЕМ КЭШ
+                        if message:
+                            await loading_msg.delete()
+                        return cached_playlist
             
             ydl_opts = {
                 'quiet': True,
                 'no_warnings': True,
-                'extract_flat': True,
+                'extract_flat': False,
+                'ignoreerrors': True,
             }
             
             loop = asyncio.get_event_loop()
             info = await loop.run_in_executor(
                 None, 
-                lambda: yt_dlp.YoutubeDL(ydl_opts).extract_info(playlist_url, download=False)
+                lambda: yt_dlp.YoutubeDL(ydl_opts).extract_info(url, download=False)
             )
             
-            # получаю обложку из первого трека
+            # УДАЛЯЕМ СООБЩЕНИЕ "ПОЛУЧАЮ ИНФОРМАЦИЮ" ПОСЛЕ ПОЛУЧЕНИЯ ДАННЫХ
+            if message:
+                await loading_msg.delete()
+            
+            # ЕСЛИ ПРИВАТНЫЙ ПЛЕЙЛИСТ - ВОЗВРАЩАЕМ ОШИБКУ
+            if not info:
+                return {
+                    'type': 'error',
+                    'title': 'Приватный плейлист',
+                    'track_count': 0,
+                    'user': 'Недоступно',
+                    'error': 'Это приватный плейлист, скачать нельзя'
+                }
+                
+            # ЛУЧШЕЕ ОПРЕДЕЛЕНИЕ ТИПА КОНТЕНТА
+            if info.get('_type') == 'playlist':
+                content_type = "playlist"
+                track_count = len(info.get('entries', []))
+            elif 'entries' in info and len(info['entries']) > 1:
+                content_type = "playlist" 
+                track_count = len(info['entries'])
+            else:
+                content_type = "track"
+                track_count = 1
+            
+            # получаю обложку
             cover_url = info.get('thumbnail', '')
             if not cover_url and info.get('entries'):
                 first_track = info['entries'][0]
                 cover_url = first_track.get('thumbnail', '')
+            elif not cover_url:
+                cover_url = info.get('thumbnail', '')
             
-            playlist_info = {
-                'title': info.get('title', get_text('ua', 'unknown_playlist')),
+            # ДОБАВИЛ ЗАГЛУШКУ ДЛЯ YOUTUBE MUSIC
+            if not cover_url or 'music.youtube.com' in url:
+                # Стильные заглушки для YouTube Music
+                cover_url = 'https://i.imgur.com/3Q7Yc7Q.png'  # нейтральная картинка
+            
+            # ОЧИСТКА НАЗВАНИЯ ОТ МУСОРА
+            raw_title = info.get('title', '')
+            clean_title = self.clean_filename(raw_title)
+            
+            # ГАРАНТИРУЕМ ЧТО ВСЕ КЛЮЧИ БУДУТ В СЛОВАРЕ
+            content_info = {
+                'type': content_type,
+                'title': clean_title,
                 'cover_url': cover_url,
-                'track_count': len(info.get('entries', [])),
+                'track_count': track_count,
                 'user': info.get('uploader', get_text('ua', 'unknown_artist')),
+                'duration': info.get('duration', 0),
             }
-            
-            # КЭШИРУЕМ ДАННЫЕ ПЛЕЙЛИСТА
+
+            # ДОБАВЛЯЕМ ИНФОРМАЦИЮ ДЛЯ YOUTUBE MUSIC
+            if 'music.youtube.com' in url:
+                # YouTube Music - минимальная информация
+                if not content_info['user'] or content_info['user'] in ['Unknown', '']:
+                    content_info['user'] = 'YouTube Music'
+                if not content_info['title'] or content_info['title'] in ['Unknown', '']:
+                    content_info['title'] = f'YouTube Music ({track_count} треков)'
+        
+            # КЭШИРУЕМ ДАННЫЕ
             if db:
-                tracks_data = [{'title': track.get('title', '')} for track in info.get('entries', [])]
-                await db.cache_playlist(playlist_url, playlist_info, tracks_data)
-                print(f"💾 Закэшировали плейлист: {playlist_info['title']}")
+                tracks_data = []
+                if content_type == "playlist":
+                    tracks_data = [{'title': track.get('title', '')} for track in info.get('entries', [])]
+                else:
+                    tracks_data = [{'title': info.get('title', '')}]
+                
+                await db.cache_playlist(url, content_info, tracks_data)
             
-            return playlist_info
+            return content_info
             
         except Exception as e:
-            print(f"❌ Ошибка получения информации о плейлисте: {e}")
+            # УДАЛЯЕМ СООБЩЕНИЕ "ПОЛУЧАЮ ИНФОРМАЦИЮ" ПРИ ОШИБКЕ
+            if message:
+                try:
+                    await loading_msg.delete()
+                except:
+                    pass
             return None
 
-    async def send_playlist_preview(self, message: types.Message, playlist_url: str, lang: str = "ua"):
+    async def send_content_preview(self, message: types.Message, url: str, lang: str = "ua"):
         """Быстро отправляет превью и возвращает информацию для загрузки"""
         try:
-            # получаю информацию о плейлисте
-            playlist_info = await self.get_playlist_info(playlist_url)
+            # получаю информацию о контенте с сообщением о загрузке
+            content_info = await self.get_content_info(url, message, lang)
             
-            if not playlist_info:
+            if not content_info:
                 # заглушка если не получилось
-                playlist_info = {
+                content_info = {
+                    'type': 'unknown',
                     'title': get_text(lang, 'unknown_playlist'),
                     'track_count': 0,
                     'user': get_text(lang, 'unknown_artist')
                 }
             
-            # Очищаем название
-            clean_title = self.clean_text(playlist_info['title'])
-            clean_user = self.clean_text(playlist_info['user'])
+            # ГАРАНТИРУЕМ ЧТО ВСЕ КЛЮЧИ ЕСТЬ
+            content_info.setdefault('user', get_text(lang, 'unknown_artist'))
+            content_info.setdefault('title', get_text(lang, 'unknown_playlist'))
+            content_info.setdefault('track_count', 0)
+            content_info.setdefault('type', 'unknown')
             
-            # Формируем подпись на ПРАВИЛЬНОМ языке
-            caption = f"🎵 **{clean_title}**\n"
-            caption += f"👤 **{get_text(lang, 'author')}:** {clean_user}\n"
-            caption += f"📊 **{get_text(lang, 'track_count')}:** {playlist_info['track_count']}"
+            # ЕСЛИ ОШИБКА - СРАЗУ ВОЗВРАЩАЕМ
+            if content_info.get('type') == 'error':
+                await message.answer(f"❌ {content_info.get('error', 'Ошибка загрузки')}")
+                return {
+                    'type': 'error',
+                    'title': content_info['title'],
+                    'user': content_info['user'],
+                    'track_count': 0
+                }
+            
+            # Очищаем название
+            clean_title = self.clean_text(content_info['title'])
+            clean_user = self.clean_text(content_info['user'])
+            
+            # ФОРМИРУЕМ ПРАВИЛЬНУЮ ПОДПИСЬ В ЗАВИСИМОСТИ ОТ ТИПА
+            if content_info['type'] == "track":
+                caption = f"🎵 **Трек**\n"
+                caption += f"📀 **Название:** {clean_title}\n"
+                caption += f"👤 **Исполнитель:** {clean_user}\n"
+                
+                # Добавляем длительность если есть
+                if content_info.get('duration'):
+                    minutes = content_info['duration'] // 60
+                    seconds = content_info['duration'] % 60
+                    caption += f"⏱ **Длительность:** {minutes}:{seconds:02d}\n"
+            else:
+                caption = f"🎵 **Плейлист**\n"
+                caption += f"📁 **Название:** {clean_title}\n"
+                caption += f"👤 **Автор:** {clean_user}\n"
+                caption += f"📊 **Треков:** {content_info['track_count']}"
             
             # Если есть обложка - отправляем с обложкой
-            if playlist_info.get('cover_url'):
+            if content_info.get('cover_url'):
                 try:
-                    response = requests.get(playlist_info['cover_url'], timeout=3)
+                    response = requests.get(content_info['cover_url'], timeout=3)
                     if response.status_code == 200:
                         cover_photo = BytesIO(response.content)
                         cover_photo.name = 'cover.jpg'
@@ -99,15 +198,16 @@ class PlaylistPreview:
             
             # Возвращаем информацию для загрузки
             return {
+                'type': content_info['type'],
                 'title': clean_title,
                 'user': clean_user,
-                'track_count': playlist_info['track_count']
+                'track_count': content_info['track_count']
             }
             
         except Exception as e:
-            print(f"❌ Ошибка отправки превью: {e}")
             # заглушка если не получилось получить инфу
             return {
+                'type': 'unknown',
                 'title': get_text(lang, 'unknown_playlist'),
                 'user': get_text(lang, 'unknown_artist'),
                 'track_count': 0
@@ -120,6 +220,27 @@ class PlaylistPreview:
         
         cleaned = ''.join(char for char in text if char.isprintable())
         cleaned = ' '.join(cleaned.split())
+        
+        return cleaned if cleaned else get_text('ua', 'unknown')
+
+    def clean_filename(self, filename):
+        """Очищает название файла от нежелательных символов"""
+        if not filename:
+            return get_text('ua', 'unknown')
+        
+        # Убираем временные метки, даты и прочий мусор
+        cleaned = re.sub(r'\s*-\s*\d+:\d+:\d+', '', filename)  # Убирает " - 5:27:16"
+        cleaned = re.sub(r'\s*\d+\.\d+\s*[AP]M', '', cleaned)  # Убирает "9.24 PM"
+        cleaned = re.sub(r'\s*\d{1,2}:\d{2}\s*', '', cleaned)  # Убирает "02:50"
+        cleaned = re.sub(r'\s*[\d\.]+\s*[M]B', '', cleaned)    # Убирает "3.8 MB"
+        
+        # Убираем специальные символы
+        cleaned = re.sub(r'[<>:"/\\|?*]', '', cleaned)
+        
+        # Обрезаем слишком длинные названия
+        cleaned = cleaned.strip()
+        if len(cleaned) > 50:
+            cleaned = cleaned[:47] + "..."
         
         return cleaned if cleaned else get_text('ua', 'unknown')
     

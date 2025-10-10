@@ -168,4 +168,11 @@ class Database:
             ''')
             return await cursor.fetchone()
 
+    async def get_all_users(self):
+        """Получаем всех юзеров для рассылки"""
+        async with aiosqlite.connect(DB_PATH) as db:
+            cursor = await db.execute('SELECT user_id FROM users')
+            users = await cursor.fetchall()
+            return [user[0] for user in users]
+
 db = Database()
