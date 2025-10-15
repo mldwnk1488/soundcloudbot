@@ -1,0 +1,8 @@
+name: music-bot
+services:
+  - name: bot
+    env:
+      - name: KOYEB
+        value: "true"
+      - name: BOT_TOKEN
+        secret: true

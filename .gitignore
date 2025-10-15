@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+*.pyc
+.env
+*.zip
+*.mp3
+temp_downloads/
+.DS_Store
+*.log
+downloads/
+*.temp
+*.tmp
