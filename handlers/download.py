@@ -2,7 +2,7 @@ import os
 import tempfile
 import asyncio
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery, FSInputFile
+from aiogram.types import Message, CallbackQuery, FSInputFile  # ← Убедись что это есть
 from aiogram.fsm.context import FSMContext
 
 from services import downloader, file_processor, playlist_preview

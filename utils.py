@@ -1,5 +1,5 @@
 from aiogram import Bot
-from aiogram.types import FSInputFile
+from aiogram.types import FSInputFile, CallbackQuery
 from config import AD_MESSAGE
 from keyboards.main import get_ad_keyboard
 from lang_bot.translations import get_text
@@ -124,3 +124,14 @@ async def send_chunked_message(bot: Bot, user_id: int, text: str, lang=None, max
     for i, chunk in enumerate(chunks):
         prefix = f"📄 Часть {i+1}/{len(chunks)}\n\n" if len(chunks) > 1 else ""
         await send_message_to_user(bot, user_id, prefix + chunk, lang)
+
+
+async def safe_callback_answer(callback: CallbackQuery, text: str = None, show_alert: bool = False):
+    """Безопасный ответ на callback запрос"""
+    try:
+        if text:
+            await callback.answer(text, show_alert=show_alert)
+        else:
+            await callback.answer()
+    except Exception as e:
+        logger.error(f"Ошибка ответа на callback: {e}")

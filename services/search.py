@@ -1,111 +1,112 @@
-import aiohttp
+import yt_dlp
 import asyncio
 import logging
-from urllib.parse import quote
+import hashlib
 
 logger = logging.getLogger(__name__)
 
 class SoundCloudSearch:
     def __init__(self):
-        self.base_url = "https://api-v2.soundcloud.com"
-        self.client_id = "a3e059563d7fd3372b49b37f00a00bcf"  # Public SoundCloud client_id
+        self.ydl_opts = {
+            'quiet': True,
+            'no_warnings': True,
+            'extract_flat': True,
+            'ignoreerrors': True,
+        }
     
     async def search_tracks(self, query, limit=10):
-        """Поиск треков на SoundCloud"""
+        """Поиск треков через yt-dlp"""
         try:
-            encoded_query = quote(query)
-            url = f"{self.base_url}/search/tracks?q={encoded_query}&client_id={self.client_id}&limit={limit}"
+            logger.info(f"🔍 Поиск: {query}")
             
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url, timeout=10) as response:
-                    if response.status == 200:
-                        data = await response.json()
-                        return self._parse_search_results(data)
-                    else:
-                        logger.error(f"SoundCloud API error: {response.status}")
-                        return []
-        except asyncio.TimeoutError:
-            logger.error("SoundCloud search timeout")
-            return []
+            search_url = f"scsearch{limit}:{query}"
+            
+            loop = asyncio.get_event_loop()
+            with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
+                info = await loop.run_in_executor(
+                    None, 
+                    lambda: ydl.extract_info(search_url, download=False)
+                )
+            
+            if not info or 'entries' not in info:
+                logger.error("❌ Не удалось получить результаты поиска")
+                return []
+            
+            tracks = []
+            for entry in info['entries']:
+                if entry:
+                    track = self._parse_track_info(entry)
+                    if track:
+                        tracks.append(track)
+                        logger.info(f"✅ Трек: {track['title']}")
+            
+            logger.info(f"✅ Найдено треков: {len(tracks)}")
+            return tracks[:limit]
+            
         except Exception as e:
-            logger.error(f"Search error: {e}")
+            logger.error(f"❌ Search error: {e}")
             return []
     
-    def _parse_search_results(self, data):
-        """Парсинг результатов поиска"""
-        tracks = []
-        
-        for item in data.get('collection', []):
-            try:
-                # Проверяем что трек доступен для прослушивания
-                if item.get('policy') != 'ALLOW' or not item.get('streamable'):
-                    continue
-                
-                track = {
-                    'id': item.get('id'),
-                    'title': item.get('title', 'Unknown Track'),
-                    'artist': item.get('user', {}).get('username', 'Unknown Artist'),
-                    'duration': item.get('duration', 0),
-                    'permalink_url': item.get('permalink_url'),
-                    'artwork_url': item.get('artwork_url'),
-                    'streamable': item.get('streamable', False)
-                }
-                
-                # Форматируем длительность
-                if track['duration']:
-                    minutes = track['duration'] // 60000
-                    seconds = (track['duration'] % 60000) // 1000
-                    track['duration_formatted'] = f"{minutes}:{seconds:02d}"
-                else:
-                    track['duration_formatted'] = "0:00"
-                
-                tracks.append(track)
-            except Exception as e:
-                logger.error(f"Error parsing track: {e}")
-                continue
-        
-        return tracks
+    def _parse_track_info(self, entry):
+        """Парсинг информации о треке"""
+        try:
+            # Создаем стабильный ID из URL
+            track_url = entry.get('webpage_url', '')
+            track_id = hashlib.md5(track_url.encode()).hexdigest() if track_url else str(entry.get('id', ''))
+            
+            # Безопасно получаем длительность
+            duration = entry.get('duration', 0)
+            if isinstance(duration, (int, float)) and duration > 0:
+                duration_ms = int(duration * 1000)
+                minutes = duration_ms // 60000
+                seconds = (duration_ms % 60000) // 1000
+                duration_formatted = f"{minutes}:{seconds:02d}"
+            else:
+                duration_ms = 0
+                duration_formatted = "0:00"
+            
+            track = {
+                'id': track_id,
+                'title': entry.get('title', 'Unknown Track').strip(),
+                'artist': entry.get('uploader', 'Unknown Artist').strip(),
+                'duration': duration_ms,
+                'permalink_url': track_url,
+                'artwork_url': entry.get('thumbnail'),
+                'streamable': True,
+                'duration_formatted': duration_formatted
+            }
+            
+            logger.debug(f"🎵 Парсинг трека: {track['title']} - {track['artist']}")
+            return track
+            
+        except Exception as e:
+            logger.error(f"❌ Error parsing track: {e}")
+            logger.error(f"❌ Entry data: {entry}")
+            return None
     
     async def get_track_info(self, track_url):
         """Получение информации о конкретном треке"""
         try:
-            url = f"{self.base_url}/resolve?url={track_url}&client_id={self.client_id}"
+            logger.info(f"🔍 Получение информации о треке: {track_url}")
             
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url, timeout=10) as response:
-                    if response.status == 200:
-                        data = await response.json()
-                        return self._parse_track_info(data)
-                    else:
-                        logger.error(f"SoundCloud resolve error: {response.status}")
-                        return None
-        except Exception as e:
-            logger.error(f"Get track info error: {e}")
-            return None
-    
-    def _parse_track_info(self, data):
-        """Парсинг информации о треке"""
-        try:
-            track = {
-                'id': data.get('id'),
-                'title': data.get('title', 'Unknown Track'),
-                'artist': data.get('user', {}).get('username', 'Unknown Artist'),
-                'duration': data.get('duration', 0),
-                'permalink_url': data.get('permalink_url'),
-                'artwork_url': data.get('artwork_url'),
-                'streamable': data.get('streamable', False)
-            }
+            loop = asyncio.get_event_loop()
+            with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
+                info = await loop.run_in_executor(
+                    None, 
+                    lambda: ydl.extract_info(track_url, download=False)
+                )
             
-            if track['duration']:
-                minutes = track['duration'] // 60000
-                seconds = (track['duration'] % 60000) // 1000
-                track['duration_formatted'] = f"{minutes}:{seconds:02d}"
-            else:
-                track['duration_formatted'] = "0:00"
+            if not info:
+                logger.error("❌ Не удалось получить информацию о треке")
+                return None
             
+            track = self._parse_track_info(info)
+            if track:
+                logger.info(f"✅ Информация получена: {track['title']}")
             return track
+            
         except Exception as e:
-            logger.error(f"Error parsing track info: {e}")
+            logger.error(f"❌ Get track info error: {e}")
             return None
 
 search_engine = SoundCloudSearch()

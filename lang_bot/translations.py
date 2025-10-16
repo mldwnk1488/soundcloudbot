@@ -53,7 +53,7 @@ TRANSLATIONS = {
         "processing_status": "Обробка",
         "database_status": "База даних",
         "queue_empty": "Черга порожня!",
-        "total_in_queue": "Всього в черзі"
+        "total_in_queue": "Всього в черзі",
         "search_placeholder": "🔍 Введіть назву треку або артиста для пошуку...",
         "search_results": "🎵 Результати пошуку для \"{query}\":",
         "search_no_results": "❌ За вашим запитом \"{query}\" нічого не знайдено",
@@ -80,6 +80,39 @@ TRANSLATIONS = {
         "playlist_added": "✅ Трек додано до \"{playlist}\"",
         "playlist_no_playlists": "📭 У вас ще немає плейлистів",
         "playlist_select": "📁 Обрати плейлист",
+        "search_page": "Сторінка",
+        "search_of": "з",
+        "tracks_found": "знайдено треків",
+        "unknown_artist": "Невідомий виконавець",
+        "next_page": "Наступна",
+        "prev_page": "Попередня",
+        "download_options": "Варіанти завантаження",
+        "select_track_to_download": "Оберіть трек для завантаження",
+        
+        # Улучшенные сообщения
+        "search_loading_improved": "🔍 Шукаю треки... Це може зайняти кілька секунд",
+        "search_more_results": "Знайдено багато результатів. Використовуйте кнопки для навігації",
+        
+        # Статусы скачивания
+        "download_preparing": "🔄 Підготовка до завантаження...",
+        "download_starting": "⬇️ Починаю завантаження...",
+        "download_processing": "⚙️ Обробка аудио...",
+        "download_almost_done": "✅ Майже готово...",
+        "download_complete": "🎉 Завантаження завершено!",
+        
+        # Ошибки
+        "download_failed_retry": "❌ Помилка завантаження. Спробуйте ще раз",
+        "track_unavailable": "❌ Цей трек недоступний для завантаження",
+        "file_too_large": "❌ Файл занадто великий",
+        
+        # Успешные сообщения
+        "download_success": "✅ Завантаження успішне!",
+        "file_sent": "📤 Файл відправлено",
+        
+        # Навигация
+        "navigation": "Навігація",
+        "back_to_search": "🔙 Назад до пошуку",
+        "load_more": "📥 Завантажити ще",
     },
     "ru": {
         "start_choose": "🌍 <b>Выберите язык</b>",
@@ -135,7 +168,7 @@ TRANSLATIONS = {
         "processing_status": "Обработка",
         "database_status": "База данных",
         "queue_empty": "Очередь пуста!",
-        "total_in_queue": "Всего в очереди"
+        "total_in_queue": "Всего в очереди",
         "search_placeholder": "🔍 Введите название трека или артиста для поиска...",
         "search_results": "🎵 Результаты поиска для \"{query}\":",
         "search_no_results": "❌ По вашему запросу \"{query}\" ничего не найдено",
@@ -148,6 +181,39 @@ TRANSLATIONS = {
         "search_too_short": "❌ Запрос слишком короткий (минимум 3 символа)",
         "search_found_tracks": "Найдено треков: {count}",
         "search_timeout": "⏱ Поиск занял слишком много времени, попробуйте другой запрос",
+        "search_page": "Страница",
+        "search_of": "из",
+        "tracks_found": "найдено треков",
+        "unknown_artist": "Неизвестный исполнитель",
+        "next_page": "Следующая",
+        "prev_page": "Предыдущая",
+        "download_options": "Варианты загрузки",
+        "select_track_to_download": "Выберите трек для загрузки",
+        
+        # Улучшенные сообщения
+        "search_loading_improved": "🔍 Ищу треки... Это может занять несколько секунд",
+        "search_more_results": "Найдено много результатов. Используйте кнопки для навигации",
+        
+        # Статусы скачивания
+        "download_preparing": "🔄 Подготовка к загрузке...",
+        "download_starting": "⬇️ Начинаю загрузку...",
+        "download_processing": "⚙️ Обработка аудио...",
+        "download_almost_done": "✅ Почти готово...",
+        "download_complete": "🎉 Загрузка завершена!",
+        
+        # Ошибки
+        "download_failed_retry": "❌ Ошибка загрузки. Попробуйте еще раз",
+        "track_unavailable": "❌ Этот трек недоступен для загрузки",
+        "file_too_large": "❌ Файл слишком большой",
+        
+        # Успешные сообщения
+        "download_success": "✅ Загрузка успешна!",
+        "file_sent": "📤 Файл отправлен",
+        
+        # Навигация
+        "navigation": "Навигация",
+        "back_to_search": "🔙 Назад к поиску",
+        "load_more": "📥 Загрузить еще",
     },
     "en": {
         "start_choose": "🌍 <b>Choose language</b>",
@@ -216,6 +282,39 @@ TRANSLATIONS = {
         "search_too_short": "❌ Query too short (minimum 3 characters)",
         "search_found_tracks": "Found tracks: {count}",
         "search_timeout": "⏱ Search took too long, try another query",
+        "search_page": "Page",
+        "search_of": "of",
+        "tracks_found": "tracks found",
+        "unknown_artist": "Unknown Artist",
+        "next_page": "Next",
+        "prev_page": "Previous",
+        "download_options": "Download options",
+        "select_track_to_download": "Select track to download",
+        
+        # Improved messages
+        "search_loading_improved": "🔍 Searching for tracks... This may take a few seconds",
+        "search_more_results": "Found many results. Use buttons for navigation",
+        
+        # Download statuses
+        "download_preparing": "🔄 Preparing download...",
+        "download_starting": "⬇️ Starting download...",
+        "download_processing": "⚙️ Processing audio...",
+        "download_almost_done": "✅ Almost done...",
+        "download_complete": "🎉 Download complete!",
+        
+        # Errors
+        "download_failed_retry": "❌ Download failed. Please try again",
+        "track_unavailable": "❌ This track is unavailable for download",
+        "file_too_large": "❌ File is too large",
+        
+        # Success messages
+        "download_success": "✅ Download successful!",
+        "file_sent": "📤 File sent",
+        
+        # Navigation
+        "navigation": "Navigation",
+        "back_to_search": "🔙 Back to search",
+        "load_more": "📥 Load more",
     }
 }
 

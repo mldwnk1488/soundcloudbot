@@ -5,10 +5,13 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
 from services.search import search_engine
-from keyboards.main import get_search_keyboard, get_track_selection_keyboard
+from keyboards.main import get_search_keyboard, get_track_selection_keyboard, get_download_keyboard
 from lang_bot.translations import get_text
 from utils import get_user_language_safe
 import asyncio
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = Router()
 
@@ -43,17 +46,16 @@ async def process_search_query(message: Message, state: FSMContext):
     query = message.text.strip()
     lang = await get_user_language_safe(user_id)
     
-    if len(query) < 3:
+    if len(query) < 2:
         await message.answer(get_text(lang, "search_too_short"))
         return
     
-    # Показываем сообщение о загрузке
-    loading_msg = await message.answer(get_text(lang, "search_loading"))
+    loading_msg = await message.answer("🔍 Ищу треки...")
     
     try:
-        # Ищем треки с таймаутом
-        search_task = asyncio.create_task(search_engine.search_tracks(query, limit=20))
-        tracks = await asyncio.wait_for(search_task, timeout=15)
+        logger.info(f"🔍 Поиск треков для: {query}")
+        search_task = asyncio.create_task(search_engine.search_tracks(query, limit=15))
+        tracks = await asyncio.wait_for(search_task, timeout=20)
         
         if not tracks:
             await loading_msg.edit_text(get_text(lang, "search_no_results").format(query=query))
@@ -65,7 +67,8 @@ async def process_search_query(message: Message, state: FSMContext):
         results_text = format_search_results(tracks[:5], query, lang)
         await loading_msg.edit_text(
             results_text,
-            reply_markup=get_track_selection_keyboard(tracks, lang, 0)
+            reply_markup=get_track_selection_keyboard(tracks, lang, 0),
+            parse_mode="Markdown"
         )
         
         await state.set_state(SearchStates.showing_search_results)
@@ -74,7 +77,7 @@ async def process_search_query(message: Message, state: FSMContext):
         await loading_msg.edit_text(get_text(lang, "search_timeout"))
         await state.clear()
     except Exception as e:
-        logger.error(f"Search error: {e}")
+        logger.error(f"❌ Search error: {e}")
         await loading_msg.edit_text(get_text(lang, "search_error"))
         await state.clear()
 
@@ -82,19 +85,18 @@ async def process_search_query(message: Message, state: FSMContext):
 async def select_track(callback: CallbackQuery, state: FSMContext):
     """Выбор трека из результатов поиска"""
     user_id = callback.from_user.id
-    track_id = int(callback.data.split("_")[2])
+    track_index = int(callback.data.split("_")[2]) - 1  # Convert to 0-based index
     lang = await get_user_language_safe(user_id)
     
     user_data = await state.get_data()
     tracks = user_data.get('search_results', [])
     
-    selected_track = next((track for track in tracks if track['id'] == track_id), None)
-    
-    if not selected_track:
+    if track_index < 0 or track_index >= len(tracks):
         await callback.answer(get_text(lang, "error"), show_alert=True)
         return
     
-    # Сохраняем выбранный трек и переходим к скачиванию
+    selected_track = tracks[track_index]
+    
     await state.update_data({
         'url': selected_track['permalink_url'],
         'content_type': 'track',
@@ -113,7 +115,7 @@ async def select_track(callback: CallbackQuery, state: FSMContext):
         reply_markup=get_download_keyboard(lang)
     )
     
-    await state.set_state(None)  # Сбрасываем состояние поиска
+    await state.set_state(None)
     await callback.answer()
 
 @router.callback_query(F.data.startswith("search_"), SearchStates.showing_search_results)
@@ -145,13 +147,17 @@ async def navigate_search_results(callback: CallbackQuery, state: FSMContext):
     results_text = format_search_results(tracks[new_offset:new_offset+5], query, lang, new_offset)
     await callback.message.edit_text(
         results_text,
-        reply_markup=get_track_selection_keyboard(tracks, lang, new_offset)
+        reply_markup=get_track_selection_keyboard(tracks, lang, new_offset),
+        parse_mode="Markdown"
     )
     
     await callback.answer()
 
 def format_search_results(tracks, query, lang, offset=0):
     """Форматирование результатов поиска"""
+    if not tracks:
+        return "❌ Ничего не найдено"
+    
     text = f"🎵 {get_text(lang, 'search_results').format(query=query)}\n\n"
     
     for i, track in enumerate(tracks, 1):
@@ -161,8 +167,10 @@ def format_search_results(tracks, query, lang, offset=0):
         text += f"**{offset + i}. {track_title}**\n"
         text += f"   👤 {artist} | ⏱ {track['duration_formatted']}\n\n"
     
+    total_pages = (len(tracks) + 4) // 5
+    current_page = offset // 5 + 1
+    
     text += f"📊 {get_text(lang, 'search_found_tracks').format(count=len(tracks))}"
+    text += f"\n📄 Страница {current_page}/{total_pages}"
+    
     return text
-
-# Импортируем здесь чтобы избежать циклического импорта
-from keyboards.main import get_download_keyboard

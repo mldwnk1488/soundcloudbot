@@ -31,25 +31,46 @@ def get_search_keyboard(language="ua"):
     ])
 
 def get_track_selection_keyboard(tracks, language="ua", offset=0):
-    """Клавиатура для выбора трека из результатов поиска"""
+    """Клавиатура для выбора трека с переводами"""
+    from lang_bot.translations import get_text
+    
     buttons = []
     
-    for i, track in enumerate(tracks[offset:offset+5], 1):
-        track_title = track['title'][:30] + "..." if len(track['title']) > 30 else track['title']
-        button_text = f"{offset + i}. {track_title} - {track['artist']}"
-        buttons.append([InlineKeyboardButton(text=button_text, callback_data=f"select_track_{track['id']}")])
+    # Показываем только 5 треков на странице
+    displayed_tracks = tracks[offset:offset+5]
     
-    # Кнопки навигации
+    for i, track in enumerate(displayed_tracks, 1):
+        track_title = track['title'][:30] + "..." if len(track['title']) > 30 else track['title']
+        button_text = f"{offset + i}. {track_title}"
+        buttons.append([InlineKeyboardButton(
+            text=button_text, 
+            callback_data=f"select_track_{offset + i}"
+        )])
+    
+    # Кнопки навигации с переводами
     nav_buttons = []
+    
+    total_pages = (len(tracks) + 4) // 5
+    current_page = offset // 5 + 1
+    
     if offset > 0:
-        nav_buttons.append(InlineKeyboardButton(text="⬅️ Назад", callback_data=f"search_prev_{offset-5}"))
+        nav_buttons.append(InlineKeyboardButton(
+            text=f"⬅️ {get_text(language, 'prev_page')}", 
+            callback_data=f"search_prev"
+        ))
     
     if offset + 5 < len(tracks):
-        nav_buttons.append(InlineKeyboardButton(text="Вперед ➡️", callback_data=f"search_next_{offset+5}"))
+        nav_buttons.append(InlineKeyboardButton(
+            text=f"{get_text(language, 'next_page')} ➡️", 
+            callback_data=f"search_next"
+        ))
     
     if nav_buttons:
         buttons.append(nav_buttons)
     
-    buttons.append([InlineKeyboardButton(text="❌ Отмена", callback_data="search_cancel")])
+    buttons.append([InlineKeyboardButton(
+        text=f"❌ {get_text(language, 'canceled')}", 
+        callback_data="search_cancel"
+    )])
     
     return InlineKeyboardMarkup(inline_keyboard=buttons)
